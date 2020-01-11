@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+
+<html>
+    <head>    
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Affable Mirage</title>
+        <link rel="icon" href="images/icon.png" />
+        
+        <!--bootstrap css-->
+        <link rel="stylesheet" href="./css/bootstrap.min.css" >
+        <link rel="stylesheet" href="./css/styles.css" >
+        <!--fancybox & slider-->
+        <link rel="stylesheet" href="css/jquery.fancybox.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/sss.css" media="all" />
+        <!--font & social media icons-->
+        <link href="https://fonts.googleapis.com/css?family=Cherry+Swash" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <style>
+            html {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            }
+
+            body {
+                height: 100%;
+                background-color: rgb(243, 253, 253);
+                padding: 0;
+            }
+
+            /*icon in navbar*/
+            #AffableMirageIcon {
+                width: 30px;
+            }
+
+            /*icon in jumbotron*/
+            #AffableMirageIcon2 {
+                width: 15%;
+            }
+
+            /*fancybox*/
+            #pictures {
+                display: inline-block;
+                margin-left: 50px;
+                margin-right: auto;
+                width: 600px;
+            }
+
+            /*"Affable Mirage" text in navbar*/
+            #AffableMirage {
+                font-family: 'Cherry Swash', cursive;
+                margin: 0;
+                padding-right: 20px;
+            }
+
+            /*slider pictures*/
+            #soapSlide { 
+                width: 100%;
+                height: 550px;
+            }
+
+            /*product pictures on home page*/
+            #soapProducts {
+                max-width: 100%;
+                height: auto;
+                border-radius: 10%;
+                padding: 3%;
+            }       
+
+            /*product pictures in modal*/
+            #soapProductsModal{
+                width: 400px;
+                margin-left: auto;
+                margin-right: auto;
+                display: block;
+            }
+
+            /*small product pictures in modal*/
+            #smallPictures {
+                width: 23%;
+                height: 65px;
+            }
+
+            /*products div*/
+            #products {
+                background-color: white;
+                padding-left: 10%;
+                padding-right: 10%;
+                padding-top: 2%;
+                padding-bottom: 2%;
+            }
+
+            /*icons*/
+            #socialMedia {
+                color: black;
+                text-decoration: none;
+                font-size: 250%;
+                min-width: 4%;
+            }
+
+            .fa:hover {
+                opacity: 0.7;
+            }
+
+            /*slider*/
+            .slider {
+                width: 100%;
+            }
+
+            .navbar {
+                background-color: #e3f2fd;
+            }
+
+            .container-fluid {
+                padding-right: 0;
+                padding-left: 0;
+            }
+
+            .jumbotron {
+                background-color: rgb(227,242,253);
+                margin: 0;
+            }    
+
+            .error {
+                color: red;
+                display: none;
+                font-weight: lighter;
+            }
+
+            .alert {
+              display: none;
+            }
+                
+        </style>
+
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+        <!--slider & fancybox-->        
+        <script type="text/javascript" src="js/sss.min.js"></script>
+        <script src="js/jquery.fancybox.min.js"></script>  
+        <script type="text/javascript">
+            $(document).ready(function() {
+                //show home page when loaded
+                showHome();
+
+                //show home page when Home link in navbar is clicked
+                $("#homeLink").click(function(e) {
+                  showHome();
+                });
+
+                //show contact page when Contact link in navbar is clicked
+                $("#contactLink").click(function(e) {
+                  showContact();
+                });
+
+                //show about page when About link in navbar is clicked
+                $("#aboutLink").click(function(e) {
+                  showAbout();
+                });
+                          
+            }); 
+
+            //show home page
+            function showHome() {
+              $("main").show();
+              $("#contact").hide();
+              $("#about").hide();
+            }
+
+            //show about page
+            function showAbout() {
+              $("#about").show();
+              $("main").hide();
+              $("#contact").hide();
+            }
+
+            //show contact page
+            function showContact() {
+              $("#contact").show();
+              $("main").hide();
+              $("#about").hide();
+            }
+
+            //slider
+            jQuery(function($) {
+                $(".slider").sss();
+            });
+
+            //contact form validation
+            function submitForm() {
+                //variables
+                var subject = $("#subject").val();
+                var email = $("#email").val();
+                var message = $("#message").val();
+                var error = 0;
+
+                //check subject field
+                if (subject == "") {
+                    error = 1;
+                    $("#subjectError").css("display", "inline");
+                    $('.alert').css("display", "inline");
+                } else {
+                    $("#subjectError").css("display", "none");
+                }
+
+                //check email field
+                if (email == "") {
+                    error = 2;
+                    $("#emailError").css("display", "inline");
+                    $('.alert').css("display", "inline");
+                } else {
+                    $("#emailError").css("display", "none");
+                }
+
+                //check email field for format
+                if (!(validateEmail(email)) ) {
+                    error = 3;
+                    $("#emailError2").css("display", "inline");
+                } else {
+                    $("#emailError2").css("display", "none");
+                }
+
+                //check message textarea
+                if (message == "") {
+                    error = 4;
+                    $("#messageError").css("display", "inline");
+                    $('.alert').css("display", "inline");
+                } else {
+                    $("#messageError").css("display", "none");
+                }
+
+                //no errors -> send to server
+                if (error == 0) {
+                    var dataString = sendToServer(subject, email, message);
+
+                    $.ajax({
+                      type: "POST",
+                      url: "/sendForm.php",
+                      data: dataString,
+                      success: function(msg) {
+                        if(msg != "") {
+                            alert(msg);
+                        }
+                      }
+                    });
+                }
+
+                function sendToServer(subject, email, message) {
+                    var dataString = "subject=" +subject+ "&email=" +email+ "&message=" +message      
+                    return dataString;
+                }
+              }
+
+            //check email format
+            function validateEmail(email) {
+              var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+              return re.test(email);
+            }
+
+        </script>
+    </head>
+
+    <body>
+        <!--navbar with icon-->
+        <nav class="navbar navbar-expand-md border-bottom navbar-light" >   
+            <img id="AffableMirageIcon" src="images/icon.png" alt="Affable Mirage Icon"/>
+            <a id="AffableMirage" class="navbar-brand" href="#">Affable Mirage</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" 
+                    aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+          
+            <!--links-->
+            <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+                <ul class="navbar-nav mr-auto">
+                  <li id="homeLink" class="nav-item">
+                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                  </li>
+                  <li id="aboutLink" class="nav-item">
+                    <a class="nav-link" href="#about">About</a>
+                  </li>
+                  <li id="contactLink" class="nav-item">
+                    <a class="nav-link" href="#contact">Contact</a>
+                  </li>
+                </ul>
+
+                <form class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+                    <button class="btn btn-outline-info my-2 my-sm-0" type="submit">Search</button>
+                </form>
+            </div>
+        </nav> 
+
+        <!--jumbotron-->
+        <div class="jumbotron text-center">
+            <h1 id="AffableMirage" class="font-weight-light">Affable Mirage</h1> 
+            <img id="AffableMirageIcon2" src="images/icon.png" alt="Affable Mirage Icon" />
+            <h6 class="font-weight-light">Good soap isn't just a fantasy</h6> 
+        </div>
+
+        <!--main page-->
+        <main class="container-fluid">
+        
+            <div class="slider">
+                <img id="soapSlide" src="images/soapslide1.jpg" alt="Three Soaps" />
+                <img id="soapSlide" src="images/soapslide2.jpg" alt="Many Soaps" />
+                <img id="soapSlide" src="images/soapslide3.jpg" alt="Colorful Soaps" />
+                <img id="soapSlide" src="images/soapslide4.jpg" alt="Neutral Soaps" />
+            </div>
+
+            <!--products-->
+            <div id="products" class="container-fluid">
+                <h2>Best Sellers</h2>
+                <div class="row">
+
+                  <!--product one: Heart Soap-->
+                  <div class="col-md-4">
+                          
+                    <div class="text-center">
+                        <img id="soapProducts" class="img-fluid" src="images/product1.jpg" alt="Heart Soap" />
+                        <p class="lead">Heart Soap - 3.09$</p>
+                        <button type="button" class="btn btn-outline-info btn-md" data-toggle="modal" data-target="#viewModal1">
+                            View 
+                        </button>
+                    </div>
+
+                    <!--modal one-->
+                    <div class="modal fade" id="viewModal1">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                              <h4 class="modal-title">Heart Soap</h4>
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          </div>
+                          <div class="modal-body">
+                              <img id="soapProductsModal" src="images/product1.jpg" alt="Heart Soap" />
+                              <br/>
+                              <div class="col-md text-md-center">
+                                  This small soap is handmade close to the heart. Made with coconut oil and sodium hydroxide. Comes in various colors.
+                              </div>
+                              <!--small pictures-->
+                              <div class="col-md text-center">
+                                  <a data-fancybox="heartSoap" data-caption="Pink Heart Soap" href="images/product11.jpg">
+                                    <img id="smallPictures" src="images/product11.jpg" /></a>     
+                                  <a data-fancybox="heartSoap" data-caption="Cream Heart Soap" href="images/product111.jpg">
+                                    <img id="smallPictures" src="images/product111.jpg" /></a>     
+                                  <a data-fancybox="heartSoap" data-caption="Pink & Cream Heart Soap" href="images/product1111.jpg">
+                                    <img id="smallPictures" src="images/product1111.jpg" /></a>     
+                                  <a data-fancybox="heartSoap" data-caption="Pink Heart Soap!" href="images/product11111.jpg">
+                                    <img id="smallPictures" src="images/product11111.jpg" /></a>  
+                              </div>
+                              <div class="col-sm text-right lead">3.09$</div>
+                          </div>
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-success" >Add to Cart</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                            
+                  </div>
+
+                  <!--product two: Wine Bar Soap-->
+                  <div class="col-md-4">
+
+                    <div class="text-center">                                  
+                        <img id="soapProducts" class="img-fluid" src="images/product2.jpg" alt="Wine Bar Soap" />
+                        <p class="lead">Wine Bar Soap - 5.99$</p>
+                        <button type="button" class="btn btn-outline-info btn-md" data-toggle="modal" data-target="#viewModal2">
+                            View 
+                        </button>
+                    </div>
+
+                    <!--modal two-->
+                    <div class="modal fade" id="viewModal2">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                              <h4 class="modal-title">Wine Bar Soap</h4>
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          </div>
+                          <div class="modal-body">
+                              <img id="soapProductsModal" src="images/product2.jpg" alt="Wine Bar Soap" />
+                              <br/>
+                              <div class="col-md text-md-center"> 
+                                  Soothes and moisturizes for weeks of soft skin. 
+                              </div>
+
+                              <!--small pictures-->
+                              <div class="col-md text-md-center">
+                                  <a data-fancybox="wineBar" data-caption="Colorful Wine Bar Soap" href="images/product22.jpg">
+                                    <img id="smallPictures" src="images/product22.jpg" /></a>     
+                                  <a data-fancybox="wineBar" data-caption="Dramatic Wine Bar Soap" href="images/product222.jpg">
+                                    <img id="smallPictures" src="images/product222.jpg" /></a>     
+                                  <a data-fancybox="wineBar" data-caption="Bright Wine Bar Soap" href="images/product2222.jpg">
+                                    <img id="smallPictures" src="images/product2222.jpg" /></a>     
+                                  <a data-fancybox="wineBar" data-caption="Many Wine Bar Soaps" href="images/product22222.jpg">
+                                    <img id="smallPictures" src="images/product22222.jpg" /></a>  
+                              </div>
+                              <div class="col-sm text-right lead">5.99$</div>
+                          </div>
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-success">Add to Cart</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                          
+                  </div>
+
+                  <!--product three: Savon de Marseille-->
+                  <div class="col-md-4">
+
+                    <div class="text-center">
+                        <img id="soapProducts" class="img-fluid" src="images/product3.jpg" alt="Savon de Marseille" />
+                        <p class="lead">Savon de Marseille - 10.98$</p>
+                        <button type="button" class="btn btn-outline-info btn-md" data-toggle="modal" data-target="#viewModal3">
+                            View 
+                        </button>
+                    </div>
+
+                    <!--modal three-->
+                    <div class="modal fade" id="viewModal3">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                              <h4 class="modal-title">Savon de Marseille</h4>
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          </div>
+                          <div class="modal-body">
+                              <img id="soapProductsModal" src="images/product3.jpg" alt="Savon de Marseille" />
+                              <br/>
+                              <div class="col-md text-md-center">
+                                  Infused with shea butter, this soap will make you feel at home. Fresh and reviving.
+                              </div>
+
+                              <!--small pictures-->
+                              <div class="col-md text-md-center">
+                                  <a  data-fancybox="savon" data-caption="Savon Jaune" href="images/product33.jpg">
+                                    <img id="smallPictures" src="images/product33.jpg" /></a>     
+                                  <a data-fancybox="savon" data-caption="Savon pâle" href="images/product333.jpg">
+                                    <img id="smallPictures" src="images/product333.jpg" /></a>     
+                                  <a data-fancybox="savon" data-caption="Beaucoup de Savon" href="images/product3333.jpg">
+                                    <img id="smallPictures" src="images/product3333.jpg" /></a>     
+                                  <a data-fancybox="savon" data-caption="Savon Brillant" href="images/product33333.jpg">
+                                    <img id="smallPictures" src="images/product33333.jpg" /></a>  
+                              </div>
+                              <div class="col-sm text-right lead">10.98$</div>
+                          </div>
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-success">Add to Cart</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                        
+                  </div>
+                      
+                  <!--product four: Simple Soap-->
+                  <div class="col-md-4">
+
+                    <div class="text-center">
+                        <img id="soapProducts" class="img-fluid" src="images/product4.jpg" alt="Simple Soap" />
+                        <p class="lead">Simple Soap - 8.34$</p>
+                        <button type="button" class="btn btn-outline-info btn-md" data-toggle="modal" data-target="#viewModal4">
+                            View 
+                        </button>
+                    </div>
+
+                    <!--modal four-->
+                    <div class="modal fade" id="viewModal4">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                              <h4 class="modal-title">Simple Soap</h4>
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          </div> 
+                          <div class="modal-body">
+                              <img id="soapProductsModal" src="images/product4.jpg" alt="Simple Soap" />
+                              <br/>
+                              <div class="col-md text-md-center">
+                              This simple soap focuses on leaving you squeaky clean while also gently treating 
+                              your skin. Made with cloves and chai tea.
+                              </div>
+
+                              <!--small pictures-->
+                              <div class="col-md text-md-center">
+                                  <a data-fancybox="simple" data-caption="Simple Soap" href="images/product44.jpg">
+                                    <img id="smallPictures" src="images/product44.jpg" /></a>     
+                                  <a data-fancybox="simple" data-caption="Square Simple Soap" href="images/product444.jpeg">
+                                    <img id="smallPictures" src="images/product444.jpeg" /></a>     
+                                  <a data-fancybox="simple" data-caption="Packaged Simple Soap" href="images/product4444.jpg">
+                                    <img id="smallPictures" src="images/product4444.jpg" /></a>     
+                                  <a data-fancybox="simple" data-caption="Simple Soap and Seeds?" href="images/product44444.jpg">
+                                    <img id="smallPictures" src="images/product44444.jpg" /></a>  
+                              </div>
+                              <div class="col-sm text-right lead">8.34$</div>
+                          </div>
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-success">Add to Cart</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                  
+                  <!--product five: Violet Soap-->
+                  <div class="col-md-4">
+                            
+                    <div class="text-center">
+                        <img id="soapProducts" class="img-fluid" src="images/product5.jpg" alt="Violet Soap" />
+                        <p class="lead">Violet Soap - 9.99$</p>
+                        <button type="button" class="btn btn-outline-info btn-md" data-toggle="modal" data-target="#viewModal5">
+                            View 
+                        </button>
+                    </div>
+
+                    <!--modal five-->
+                    <div class="modal fade" id="viewModal5">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                              <h4 class="modal-title">Violet Soap</h4>
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          </div>
+                          <div class="modal-body">
+                              <img id="soapProductsModal" class="img-fluid" src="images/product5.jpg" alt="Violet Soap" />
+                              <br/>
+                              <div class="col-md text-md-center">
+                              With the help of lavender, this soap will leave you refreshed and ready to take on the day.
+                              </div>
+
+                              <!--small pictures-->
+                              <div class="col-md text-md-center">
+                                  <a data-fancybox="violet" data-caption="Violet Soap + Lavender" href="images/product55.jpg">
+                                    <img id="smallPictures" src="images/product55.jpg" /></a>     
+                                  <a data-fancybox="violet" data-caption="Lavande" href="images/product555.jpg">
+                                    <img id="smallPictures" src="images/product555.jpg" /></a>     
+                                  <a data-fancybox="violet" data-caption="Violet & Friends" href="images/product5555.jpg">
+                                    <img id="smallPictures" src="images/product5555.jpg" /></a>     
+                                  <a data-fancybox="violet" data-caption="Violet & Friends v2.0" href="images/product55555.jpg">
+                                    <img id="smallPictures" src="images/product55555.jpg" /></a>  
+                              </div>
+                              <div class="col-sm text-right lead">9.99$</div>
+                          </div>
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-success">Add to Cart</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                          
+                  <!--product six: Calendula Beauty Bar-->
+                  <div class="col-md-4">
+
+                    <div class="text-center">
+                        <img id="soapProducts" class="img-fluid" src="images/product6.jpg" alt="Calendula Beauty Bar" />
+                        <p class="lead">Calendula Beauty Bar - 6.99$</p>
+                        <button type="button" class="btn btn-outline-info btn-md" data-toggle="modal" data-target="#viewModal6">
+                            View 
+                        </button>
+                    </div>
+
+                    <!--modal six-->
+                    <div class="modal fade" id="viewModal6">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                              <h4 class="modal-title">Calendula Beauty Bar</h4>
+                              <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          </div>
+                          <div class="modal-body">
+                              <img id="soapProductsModal" class="img-fluid" src="images/product6.jpg" alt="Calendula Beauty Bar"/>
+                              <br/>
+                              <div class="col-md text-md-center">
+                                  Based on the healing powers of the Calendula plant, this soap is gentle and leaves your skin nourished and glowing.
+                                  Comes in lemon flavors.
+                              </div>
+
+                              <!--small pictures-->
+                              <div class="col-md text-md-center">
+                                  <a data-fancybox="calendula" data-caption="Small Beauty Bar" href="images/product66.jpeg">
+                                    <img id="smallPictures" src="images/product66.jpeg" /></a>     
+                                  <a data-fancybox="calendula" data-caption="I can't believe it's not soap" href="images/butter666.jpg">
+                                    <img id="smallPictures" src="images/butter666.jpg" /></a>     
+                                  <a data-fancybox="calendula" data-caption="Lemon Soap" href="images/product6666.jpg">
+                                    <img id="smallPictures" src="images/product6666.jpg" /></a>     
+                                  <a data-fancybox="calendula" data-caption="Bright Beauty Bar <3" href="images/product66666.jpg">
+                                    <img id="smallPictures" src="images/product66666.jpg" /></a>  
+                              </div>
+                              <div class="col-sm text-right lead">6.99$</div>
+                          </div>
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-outline-success">Add to Cart</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+            </div>
+                      
+        </main>
+
+          <!--about page-->
+        <div id="about" class="container-fluid">
+            <h1 class="text-info display-3">Our Team</h1>
+            <div class="col-lg">
+              <p class="lead">The idea behind us? To bring affordable care to everybody.</p>
+              <p>Our customers are always first and foremost, that's why we offer quality products at affordable prices! 
+                  We believe good hygiene should come first and that you shouldn't have to break the bank to do it. Keeping
+                  your skin happy and healthy is often overlooked especially as we go about our busy days. Whether you're 
+                  looking for moisture or just a quick way to get clean, you've come to the right place! Browse our best 
+                  sellers to find the right product for you!
+              </p>
+            </div>
+            <div class="col-sm">
+              <p>Our <span class="font-weight-bold">ingredients </span> vary depending on the product. Ingredients include but are not limited to:</p>
+                <ul class="list-unstyled">
+                  <ul>
+                    <li>Shea Butter</li>
+                    <li>Lavendar</li>
+                    <li>Lemon</li>
+                    <li>Cloves</li>
+                    <li>Orange Extract</li>
+                    <li>Coconut Oil</li>
+                    <li>Butter</li>
+                  </ul>
+                </ul>
+            </div>
+        </div>
+
+        <!--contact page-->
+        <div id="contact" class="container-fluid"> 
+            <p class="text-info display-3">Questions? Concerns?</p> 
+            <div class="col-sm">
+              <p class="text-muted">Send us an email! <small>*all fields required</small>
+              <div class="alert alert-danger alert-dismissible">
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                  EMPTY FIELDS
+              </div>
+            </p>
+            </div>
+            
+            <!--form-->
+            <form id="form" name="form" method="POST" action="javascript:submitForm();">
+                <div class="col-sm">
+                    <div class="row">
+                      <!--subject-->
+                      <div class="col-sm form-group">
+                          <input class="form-control" id="subject" name="subject" placeholder="Subject" type="text"/>
+                          <span id="subjectError" class="error">*REQUIRED</span>
+                      </div>
+                      <!--email-->
+                      <div class="col-sm form-group">
+                          <input class="form-control" id="email" name="email" placeholder="Email" />
+                          <span id="emailError" class="error">*REQUIRED</span>
+                          <span id="emailError2" class="error">*NOT VALID</span>
+                      </div>
+                    </div>
+                    <!--message-->
+                      <textarea class="form-control" id="message" name="Message" placeholder="Message" rows="5"></textarea>
+                      <span id="messageError" class="error">*REQUIRED</span><br/>
+                    <!--submit-->
+                    <div class="row">
+                      <div class="col-sm form-group">
+                          <button class="btn btn-info" type="submit">Submit</button>
+                      </div>
+                    </div>
+              </div>
+            </form>
+            
+        </div>
+
+        <!--footer-->
+        <div class="container-fluid">
+            <!--icons-->
+            <a href="#" id="socialMedia" class="fa fa-facebook-official"></a>
+            <a href="#" id="socialMedia" class="fa fa-twitter"></a>
+            <a href="#" id="socialMedia" class="fa fa-instagram"></a>
+            <p class="text-center font-weight-light">100% satisfaction guaranteed. Full refund; we'll even pay for shipping.</p>
+            <small><p class="text-right font-weight-light">Disclamer: we are in no way a real company and if you thought we were, well, sucks to suck I guess.</p></small>
+        </div>
+
+        <!--bootstrap js-->
+        <script src="./js/bootstrap.min.js"></script>
+        <script src="./js/popper.min.js"></script>
+    </body>
+</html>
